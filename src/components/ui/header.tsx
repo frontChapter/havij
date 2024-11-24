@@ -1,4 +1,5 @@
 'use client'
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -33,12 +34,25 @@ import {
 } from './dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from './sheet'
 
-const navigationItems = [
+interface SubMenuItem {
+  title: string
+  href: string
+  description?: string
+}
+
+interface NavigationItem {
+  title: string
+  href: string
+  titleEn?: string
+  icon?: React.ReactNode
+  submenu?: SubMenuItem[]
+}
+
+const navigationItems: NavigationItem[] = [
   {
     title: 'صفحه اصلی',
     href: '/',
     titleEn: 'Home',
-    primary: true,
     icon: <HomeIcon />,
   },
   {
@@ -97,7 +111,35 @@ const navigationItems = [
   },
 ]
 
-const Header = () => {
+const ListItem: React.FC<{
+  className?: string
+  title: string
+  href: string
+  description?: string
+}> = ({ className, title, href, description }) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          href={href}
+          className={cn(
+            'block select-none space-y-1 text-right rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            className
+          )}
+        >
+          <div className='text-sm font-medium leading-none'>{title}</div>
+          {description && (
+            <p className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
+              {description}
+            </p>
+          )}
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  )
+}
+
+const Header: React.FC = () => {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = React.useState(false)
 
@@ -132,8 +174,8 @@ const Header = () => {
                     className={cn(
                       'text-lg font-medium transition-colors hover:text-orange-500 py-2',
                       pathname === item.href
-                        ? 'text-orange-500'
-                        : 'text-muted-foreground'
+                        ? 'bg-orange-500 text-white me-1'
+                        : ''
                     )}
                   >
                     {item.title}
@@ -166,32 +208,30 @@ const Header = () => {
                             key={submenu.title}
                             title={submenu.title}
                             href={submenu.href}
-                          >
-                            {submenu.description}
-                          </ListItem>
+                            description={submenu.description}
+                          />
                         ))}
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 ) : (
                   <NavigationMenuItem key={item.title}>
-                    <Link
-                      href={item.href}
-                      legacyBehavior
-                      passHref
-                    >
+                    <Link href={item.href}>
                       <NavigationMenuLink
                         className={cn(
                           navigationMenuTriggerStyle(),
                           'rounded-lg',
-                          item.primary && 'bg-orange-500 text-white me-1'
+                          pathname === item.href ||
+                            pathname.startsWith(`${item.href}/`)
+                            ? 'bg-orange-500 text-white me-1'
+                            : ''
                         )}
                       >
                         {item?.icon && (
                           <span className='[&>svg]:size-4 me-2'>
-                            {item?.icon}
+                            {item.icon}
                           </span>
-                        )}{' '}
+                        )}
                         {item.title}
                       </NavigationMenuLink>
                     </Link>
@@ -242,33 +282,5 @@ const Header = () => {
     </header>
   )
 }
-
-const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'>
->(({ className, title, href, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          passHref
-          href={href || ''}
-          ref={ref}
-          className={cn(
-            'block select-none space-y-1 text-right rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-            className
-          )}
-          {...props}
-        >
-          <div className='text-sm font-medium leading-none'>{title}</div>
-          <p className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
-  )
-})
-ListItem.displayName = 'ListItem'
 
 export default Header
