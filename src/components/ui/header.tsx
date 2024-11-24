@@ -18,10 +18,11 @@ import {
   Settings,
   User,
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './avatar'
 import { Button } from './button'
 import {
@@ -141,7 +142,8 @@ const ListItem: React.FC<{
 
 const Header: React.FC = () => {
   const pathname = usePathname()
-  const [isOpen, setIsOpen] = React.useState(false)
+  const { resolvedTheme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
@@ -189,7 +191,11 @@ const Header: React.FC = () => {
             className='flex items-center space-x-2 rtl:space-x-reverse'
           >
             <Image
-              src='/havij/images/logo.svg'
+              src={
+                resolvedTheme === 'dark'
+                  ? '/havij/images/logo-darkmode.svg'
+                  : '/havij/images/logo.svg'
+              }
               alt='FrontChapter'
               height={32}
               width={128}

@@ -12,7 +12,10 @@ export function ThemeProvider({
   [key: string]: unknown
 }) {
   return (
-    <NextThemesProvider {...props}>
+    <NextThemesProvider
+      enableSystem
+      {...props}
+    >
       <DirectionProvider dir='rtl'>{children}</DirectionProvider>
     </NextThemesProvider>
   )
