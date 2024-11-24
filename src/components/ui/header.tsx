@@ -9,7 +9,15 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
-import { Carrot, ChevronDown, LogOut, Menu, Settings, User } from 'lucide-react'
+import {
+  ChevronDown,
+  HomeIcon,
+  LogOut,
+  Menu,
+  Settings,
+  User,
+} from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
@@ -30,6 +38,8 @@ const navigationItems = [
     title: 'صفحه اصلی',
     href: '/',
     titleEn: 'Home',
+    primary: true,
+    icon: <HomeIcon />,
   },
   {
     title: 'هویج تایمز',
@@ -93,7 +103,7 @@ const Header = () => {
 
   return (
     <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-      <div className='container max-w-7xl flex h-14 items-center justify-between'>
+      <div className='container max-w-7xl flex h-16 items-center justify-between'>
         <div className='flex items-center space-x-2 rtl:space-x-reverse md:space-x-4'>
           <Sheet
             open={isOpen}
@@ -136,48 +146,61 @@ const Header = () => {
             href='/'
             className='flex items-center space-x-2 rtl:space-x-reverse'
           >
-            <Carrot className='h-6 w-6 text-orange-500' />
-            <span className='font-bold inline-block text-lg'>فرانت‌چپتر</span>
+            <Image
+              src='/havij/images/logo.svg'
+              alt='FrontChapter'
+              height={32}
+              width={128}
+            />
           </Link>
-        </div>
-        <NavigationMenu>
-          <NavigationMenuList>
-            {navigationItems.map((item) =>
-              item.submenu ? (
-                <NavigationMenuItem key={item.title}>
-                  <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className='grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]'>
-                      {item.submenu.map((submenu) => (
-                        <ListItem
-                          key={submenu.title}
-                          title={submenu.title}
-                          href={submenu.href}
-                        >
-                          {submenu.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              ) : (
-                <NavigationMenuItem key={item.title}>
-                  <Link
-                    href={item.href}
-                    legacyBehavior
-                    passHref
-                  >
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
+          <NavigationMenu className='hidden md:flex'>
+            <NavigationMenuList className='gap-1'>
+              {navigationItems.map((item) =>
+                item.submenu ? (
+                  <NavigationMenuItem key={item.title}>
+                    <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className='grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]'>
+                        {item.submenu.map((submenu) => (
+                          <ListItem
+                            key={submenu.title}
+                            title={submenu.title}
+                            href={submenu.href}
+                          >
+                            {submenu.description}
+                          </ListItem>
+                        ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                ) : (
+                  <NavigationMenuItem key={item.title}>
+                    <Link
+                      href={item.href}
+                      legacyBehavior
+                      passHref
                     >
-                      {item.title}
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-              )
-            )}
-          </NavigationMenuList>
-        </NavigationMenu>
+                      <NavigationMenuLink
+                        className={cn(
+                          navigationMenuTriggerStyle(),
+                          'rounded-lg',
+                          item.primary && 'bg-orange-500 text-white me-1'
+                        )}
+                      >
+                        {item?.icon && (
+                          <span className='[&>svg]:size-4 me-2'>
+                            {item?.icon}
+                          </span>
+                        )}{' '}
+                        {item.title}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                )
+              )}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
         <div className='flex items-center'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -223,11 +246,13 @@ const Header = () => {
 const ListItem = React.forwardRef<
   React.ElementRef<'a'>,
   React.ComponentPropsWithoutRef<'a'>
->(({ className, title, children, ...props }, ref) => {
+>(({ className, title, href, children, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a
+        <Link
+          passHref
+          href={href || ''}
           ref={ref}
           className={cn(
             'block select-none space-y-1 text-right rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
@@ -239,7 +264,7 @@ const ListItem = React.forwardRef<
           <p className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
             {children}
           </p>
-        </a>
+        </Link>
       </NavigationMenuLink>
     </li>
   )
